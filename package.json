@@ -1,0 +1,26 @@
+{
+  "name": "evidence-bot",
+  "version": "1.0.0",
+  "description": "AI-Powered Evidence-on-Demand Bot for auditors and compliance teams",
+  "main": "backend/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [
+    "ai",
+    "evidence",
+    "audit",
+    "compliance",
+    "bot"
+  ],
+  "author": "Hackathon Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
