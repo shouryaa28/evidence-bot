@@ -4,13 +4,11 @@ const multer = require('multer');
 const path = require('path');
 const documentService = require('../services/documentService');
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, path.join(__dirname, '../uploads'));
     },
     filename: (req, file, cb) => {
-        // Keep original filename with timestamp
         const timestamp = Date.now();
         const originalName = file.originalname;
         cb(null, `${timestamp}-${originalName}`);
@@ -18,7 +16,6 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    // Accept CSV and Excel files only
     const allowedTypes = ['.csv', '.xlsx', '.xls'];
     const fileExt = path.extname(file.originalname).toLowerCase();
 
@@ -37,9 +34,6 @@ const upload = multer({
     }
 });
 
-/**
- * Upload document
- */
 router.post('/upload', upload.single('document'), async (req, res) => {
     try {
         if (!req.file) {
@@ -50,7 +44,6 @@ router.post('/upload', upload.single('document'), async (req, res) => {
             });
         }
 
-        // Analyze the uploaded document immediately
         const analysis = await documentService.analyzeDocument(req.file.filename);
 
         res.json({
@@ -72,9 +65,6 @@ router.post('/upload', upload.single('document'), async (req, res) => {
     }
 });
 
-/**
- * Analyze existing document
- */
 router.get('/analyze/:filename', async (req, res) => {
     try {
         const { filename } = req.params;
