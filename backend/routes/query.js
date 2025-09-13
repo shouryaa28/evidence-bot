@@ -23,13 +23,13 @@ router.post('/', async (req, res) => {
         console.log(`Processing query: "${query}"`);
         const analysis = await aiService.analyzeQuery(query);
         console.log('Query analysis:', analysis);
-
         let evidence = {};
         let summary = '';
 
         // Route to appropriate service based on analysis
         switch (analysis.queryType) {
             case 'github':
+                console.log("Handling GitHub query with params:", analysis);
                 evidence = await handleGitHubQuery(analysis);
                 break;
             case 'jira':
@@ -71,21 +71,20 @@ router.post('/', async (req, res) => {
  */
 async function handleGitHubQuery(analysis) {
     const params = analysis.parameters;
-
+    console.log("Githbu respoo:::", params)
     try {
         if (params.prNumber && params.repository) {
             const [owner, repo] = params.repository.split('/');
             return await githubService.getPullRequest(owner, repo, params.prNumber);
         } else if (params.prNumber) {
-            // Try to find PR in user's repositories
             const repos = await githubService.getRepositories();
-            for (const repository of repos.slice(0, 5)) { // Check first 5 repos
+            for (const repository of repos.slice(0, 5)) {
                 try {
                     const [owner, repo] = repository.full_name.split('/');
                     const pr = await githubService.getPullRequest(owner, repo, params.prNumber);
                     return { repository: repository.full_name, ...pr };
                 } catch (error) {
-                    continue; // Try next repo
+                    continue;
                 }
             }
             throw new Error(`PR #${params.prNumber} not found in accessible repositories`);
