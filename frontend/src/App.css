@@ -11,7 +11,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0f0808 0%, #764ba2 100%);
   min-height: 100vh;
 }
 
@@ -476,8 +476,7 @@ body {
 }
 
 /* GitHub Styles */
-.github-pr,
-.jira-issue {
+.github-pr {
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   padding: 1.5rem;
@@ -572,15 +571,13 @@ body {
 }
 
 /* List Styles */
-.github-list,
-.jira-list {
+.github-list{
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.github-item,
-.jira-item {
+.github-item {
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   padding: 1rem;
@@ -821,6 +818,7 @@ tr:hover {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding: 1rem 0;
   margin-top: auto;
+
 }
 
 .footer-content {

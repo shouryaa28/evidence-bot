@@ -162,77 +162,8 @@ const ResultDisplay = ({ result }) => {
     return <div>GitHub data received but format not recognized</div>;
   };
 
-  const renderJiraResult = (evidence) => {
-    if (evidence.error) {
-      return <ErrorMessage error={evidence.error} />;
-    }
-
-    // Single issue
-    if (evidence.key) {
-      return (
-        <div className="jira-issue">
-          <div className="result-header">
-            <Ticket className="w-6 h-6 text-blue-600" />
-            <h3>{evidence.key}</h3>
-            <span className={`status-badge ${evidence.statusCategory?.toLowerCase()}`}>
-              {evidence.status}
-            </span>
-          </div>
-
-          <div className="issue-details">
-            <h4>{evidence.summary}</h4>
-            <div className="issue-meta">
-              <span><User size={16} /> Reporter: {evidence.reporter?.displayName}</span>
-              {evidence.assignee && <span><User size={16} /> Assignee: {evidence.assignee.displayName}</span>}
-              <span><Calendar size={16} /> {formatDate(evidence.created)}</span>
-              <span>Priority: {evidence.priority}</span>
-            </div>
-
-            {evidence.description && (
-              <div className="description">
-                <h5>Description</h5>
-                <p>{evidence.description}</p>
-              </div>
-            )}
-
-            <a href={evidence.url} target="_blank" rel="noopener noreferrer" className="external-link">
-              <ExternalLink size={16} />
-              View in JIRA
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // Multiple issues
-    if (evidence.issues) {
-      return (
-        <div className="jira-list">
-          <div className="list-header">
-            <h3>{evidence.total} Issues Found</h3>
-          </div>
-          {evidence.issues.map((issue, i) => (
-            <div key={i} className="jira-item">
-              <div className="issue-header">
-                <span className="issue-key">{issue.key}</span>
-                <span className={`status-badge ${issue.statusCategory?.toLowerCase()}`}>
-                  {issue.status}
-                </span>
-              </div>
-              <h4>{issue.summary}</h4>
-              <div className="issue-meta">
-                <span>{issue.assignee || 'Unassigned'}</span>
-                <span>{formatDate(issue.updated)}</span>
-                <span>{issue.priority}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    return <div>JIRA data received but format not recognized</div>;
-  };
+  
+   
 
   const renderDocumentResult = (evidence) => {
     if (evidence.error) {
@@ -347,7 +278,7 @@ const ResultDisplay = ({ result }) => {
       {/* Evidence Results */}
       <div className="evidence-section">
         {result.analysis?.queryType === 'github' && renderGitHubResult(result.evidence)}
-        {result.analysis?.queryType === 'jira' && renderJiraResult(result.evidence)}
+       
         {result.analysis?.queryType === 'document' && renderDocumentResult(result.evidence)}
         {result.analysis?.queryType === 'general' && (
           <div className="general-result">
@@ -358,17 +289,13 @@ const ResultDisplay = ({ result }) => {
                 {renderGitHubResult(result.evidence.github)}
               </div>
             )}
-            {result.evidence.jira && (
-              <div className="source-section">
-                <h4>JIRA</h4>
-                {renderJiraResult(result.evidence.jira)}
-              </div>
-            )}
+            
             {result.evidence.documents && (
               <div className="source-section">
                 <h4>Documents</h4>
                 <div>Available files: {result.evidence.documents.available_files?.length || 0}</div>
               </div>
+              
             )}
           </div>
         )}

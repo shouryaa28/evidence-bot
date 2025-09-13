@@ -118,7 +118,7 @@ function App() {
                   </div>
                   <div className="feature-card">
                     <h3>📄 Document Analysis</h3>
-                    <p>Upload and analyze CSV/Excel files with AI insights</p>
+                    <p>Upload and analyze CSV files with AI insights</p>
                   </div>
                   <div className="feature-card">
                     <h3>🤖 AI-Powered</h3>

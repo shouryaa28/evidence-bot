@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Send, Mic, Upload, Lightbulb } from 'lucide-react';
+import { Send, Upload, Lightbulb } from 'lucide-react';
 import { EXAMPLE_QUERIES } from '../utils/constants';
 
 const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
@@ -32,7 +32,6 @@ const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
 
   const allSuggestions = [
     ...EXAMPLE_QUERIES.github,
-    ...EXAMPLE_QUERIES.jira,
     ...EXAMPLE_QUERIES.document,
     ...EXAMPLE_QUERIES.general
   ];
@@ -45,7 +44,7 @@ const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask me anything about your evidence... (e.g., 'Why was PR #456 merged?')"
+            placeholder="Ask me anything about your evidence... "
             disabled={loading}
             className="query-input"
             onFocus={() => setShowSuggestions(true)}
@@ -86,7 +85,7 @@ const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.xlsx,.xls"
+          accept=".csv"
           onChange={handleFileChange}
           style={{ display: 'none' }}
         />

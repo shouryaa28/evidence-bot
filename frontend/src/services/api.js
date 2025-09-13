@@ -96,35 +96,7 @@ export const githubAPI = {
   }
 };
 
-// JIRA API functions
-export const jiraAPI = {
-  searchIssues: async (jql = '', maxResults = 50) => {
-    const response = await api.get('/jira/search', {
-      params: { jql, maxResults }
-    });
-    return response.data;
-  },
 
-  getIssue: async (key) => {
-    const response = await api.get(`/jira/issue/${key}`);
-    return response.data;
-  },
-
-  getProjects: async () => {
-    const response = await api.get('/jira/projects');
-    return response.data;
-  },
-
-  searchAccessIssues: async (username) => {
-    const response = await api.get(`/jira/access/${username}`);
-    return response.data;
-  },
-
-  getHealth: async () => {
-    const response = await api.get('/jira/health');
-    return response.data;
-  }
-};
 
 // Document API functions
 export const documentAPI = {
@@ -174,17 +146,17 @@ export const documentAPI = {
 // Health check for all services
 export const getSystemHealth = async () => {
   try {
-    const [backend, github, jira, documents] = await Promise.allSettled([
+    const [backend, github, documents] = await Promise.allSettled([
       api.get('/health'),
       githubAPI.getHealth(),
-      jiraAPI.getHealth(),
+      
       documentAPI.getHealth()
     ]);
 
     return {
       backend: backend.status === 'fulfilled' ? backend.value.data : { status: 'error', error: backend.reason?.message },
       github: github.status === 'fulfilled' ? github.value : { status: 'error', error: github.reason?.message },
-      jira: jira.status === 'fulfilled' ? jira.value : { status: 'error', error: jira.reason?.message },
+    
       documents: documents.status === 'fulfilled' ? documents.value : { status: 'error', error: documents.reason?.message }
     };
   } catch (error) {
