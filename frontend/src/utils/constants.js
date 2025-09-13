@@ -31,7 +31,7 @@ export const EXAMPLE_QUERIES = {
     "Why was PR #456 merged without approval?",
     "Show me the last 5 pull requests",
     "List all open issues with high priority",
-    "Get details for pull request #123"
+
   ],
   jira: [
     "Show access given to Jane for Prod DB",
@@ -41,7 +41,6 @@ export const EXAMPLE_QUERIES = {
   ],
   document: [
     "Share the current count of laptops and export to CSV",
-    "Analyze the asset register",
     "Process the uploaded invoice data",
     "Show me document statistics"
   ],

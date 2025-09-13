@@ -62,7 +62,8 @@ const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
               <Upload size={20} />
             </button>
 
-            <button
+            
+            < button
               type="button"
               onClick={() => setShowSuggestions(!showSuggestions)}
               className="action-button suggestions-button"
@@ -117,18 +118,7 @@ const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
               ))}
             </div>
 
-            <div className="suggestion-category">
-              <h5>🎫 JIRA</h5>
-              {EXAMPLE_QUERIES.jira.map((suggestion, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  className="suggestion-item"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
+            
 
             <div className="suggestion-category">
               <h5>📄 Documents</h5>

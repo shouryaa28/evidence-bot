@@ -69,7 +69,7 @@ function App() {
     return systemHealth[service].status === 'healthy' ? 'healthy' : 'error';
   };
 
-  const getHealthIcon = (status) => {
+ const getHealthIcon = (status) => {
     switch (status) {
       case 'healthy':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
@@ -78,7 +78,7 @@ function App() {
       default:
         return <Activity className="w-4 h-4 text-gray-400" />;
     }
-  };
+  }
 
   return (
     <div className="app">
@@ -93,25 +93,6 @@ function App() {
             </div>
           </div>
 
-          {/* System Health Indicators */}
-          <div className="health-indicators">
-            <div className="health-item" title="Backend API">
-              {getHealthIcon(getHealthStatus('backend'))}
-              <span>API</span>
-            </div>
-            <div className="health-item" title="GitHub Integration">
-              {getHealthIcon(getHealthStatus('github'))}
-              <span>GitHub</span>
-            </div>
-            <div className="health-item" title="JIRA Integration">
-              {getHealthIcon(getHealthStatus('jira'))}
-              <span>JIRA</span>
-            </div>
-            <div className="health-item" title="Document Processing">
-              {getHealthIcon(getHealthStatus('documents'))}
-              <span>Docs</span>
-            </div>
-          </div>
         </div>
       </header>
 
@@ -122,12 +103,9 @@ function App() {
           {status === STATUS.IDLE && !result && (
             <div className="welcome-section">
               <div className="welcome-content">
-                <Search className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                
                 <h2>What evidence do you need?</h2>
-                <p>
-                  Ask me anything about your GitHub repositories, JIRA issues, 
-                  or uploaded documents. I'll find and format the evidence for you.
-                </p>
+                
 
                 <div className="features-grid">
                   <div className="feature-card">
@@ -210,13 +188,7 @@ function App() {
       {/* Footer */}
       <footer className="app-footer">
         <div className="footer-content">
-          <p>Evidence-on-Demand Bot v1.0 | Built for Hackathon 2025</p>
-          <div className="footer-links">
-            <button onClick={checkSystemHealth}>
-              <Activity size={16} />
-              Refresh Health
-            </button>
-          </div>
+          <p >Evidence-on-Demand Bot v1.0 | Build with Love ❤ | Chhalaang 4.0 | The Tech Divas</p>
         </div>
       </footer>
     </div>
