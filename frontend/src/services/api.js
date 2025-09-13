@@ -60,19 +60,20 @@ export const getQuerySuggestions = async () => {
 // GitHub API functions
 export const githubAPI = {
   getRepositories: async () => {
-    const response = await api.get('/github/repos');
+    const response = await api.get('https://api.github.com/repos/shambhavi-123/sprinto-bot');
     return response.data;
   },
 
   getPullRequests: async (owner, repo, state = 'all') => {
-    const response = await api.get(`/github/repos/${owner}/${repo}/pulls`, {
+    const response = await api.get(`https://api.github.com/repos/shambhavi-123/sprinto-bot/pulls`, {
       params: { state }
     });
+    console.log("------",response);
     return response.data;
   },
 
   getPullRequest: async (owner, repo, prNumber) => {
-    const response = await api.get(`/github/repos/${owner}/${repo}/pulls/${prNumber}`);
+    const response = await api.get(`https://api.github.com/repos/shambhavi-123/sprinto-bot/pulls`);
     return response.data;
   },
 

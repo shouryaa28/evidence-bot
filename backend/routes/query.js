@@ -69,30 +69,45 @@ router.post('/', async (req, res) => {
 /**
  * Handle GitHub-specific queries
  */
+/**
+ * Handle GitHub-specific queries - Updated with new use cases
+ */
 async function handleGitHubQuery(analysis) {
     const params = analysis.parameters;
-    console.log("Githbu respoo:::", params)
+    const query = analysis.intent.toLowerCase();
+    
     try {
+        // Use Case 1: PRs merged without approval
+        if (query.includes('merged without approval') || query.includes('no approval')) {
+            return await githubService.getPRsMergedWithoutApproval();
+        }
+        
+        // Use Case 2: PRs reviewed by specific user
+        if (query.includes('reviewed by') && params.user) {
+            return await githubService.getPRsReviewedByUser(params.user);
+        }
+        
+        // Use Case 3: PRs waiting for review
+        if (query.includes('waiting for review') || query.includes('24 hours')) {
+            return await githubService.getPRsWaitingForReview();
+        }
+        
+        // Use Case 4: PRs merged in last week
+        if (query.includes('last 7 days') || query.includes('last week')) {
+            return await githubService.getPRsMergedLastWeek();
+        }
+        
+        // Existing cases
         if (params.prNumber && params.repository) {
             const [owner, repo] = params.repository.split('/');
             return await githubService.getPullRequest(owner, repo, params.prNumber);
         } else if (params.prNumber) {
-            const repos = await githubService.getRepositories();
-            for (const repository of repos.slice(0, 5)) {
-                try {
-                    const [owner, repo] = repository.full_name.split('/');
-                    const pr = await githubService.getPullRequest(owner, repo, params.prNumber);
-                    return { repository: repository.full_name, ...pr };
-                } catch (error) {
-                    continue;
-                }
-            }
-            throw new Error(`PR #${params.prNumber} not found in accessible repositories`);
-        } else if (params.repository) {
-            const [owner, repo] = params.repository.split('/');
-            return await githubService.getPullRequests(owner, repo);
+            return await githubService.getPullRequest("shambhavi-123", "sprinto-bot", params.prNumber);
+        } else if (query.includes('pull request') || query.includes('last') && query.includes('pull')) {
+            // Default: get pull requests
+            return await githubService.getPullRequests();
         } else {
-            // Default: get user repositories
+            // Default: get repositories
             return await githubService.getRepositories();
         }
     } catch (error) {

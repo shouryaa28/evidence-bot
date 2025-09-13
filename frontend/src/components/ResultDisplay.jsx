@@ -74,93 +74,217 @@ const ResultDisplay = ({ result }) => {
 
   const renderGitHubResult = (evidence) => {
     if (evidence.error) {
-      return <ErrorMessage error={evidence.error} />;
+        return <ErrorMessage error={evidence.error} />;
     }
 
-    // Single PR
+    console.log("Rendering GitHub evidence:", evidence); // Debug log
+
+    // Handle use case results with count and prs properties
+    if (evidence.count !== undefined && evidence.prs) {
+        return (
+            <div className="github-analysis">
+                <div className="result-header">
+                    <GitPullRequest className="w-6 h-6 text-purple-600" />
+                    <h3>PRs Merged Without Approval</h3>
+                    <span className="count-badge">{evidence.count} found</span>
+                </div>
+                
+                {evidence.prs.length > 0 ? (
+                    <div className="prs-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>PR ID</th>
+                                    <th>Title</th>
+                                    <th>Merged By</th>
+                                    <th>Reviews</th>
+                                    <th>Merged At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {evidence.prs.map((pr, i) => (
+                                    <tr key={i}>
+                                        <td>#{pr.pr_id}</td>
+                                        <td>{pr.title}</td>
+                                        <td>{pr.merged_by}</td>
+                                        <td>{pr.reviews.length} reviews</td>
+                                        <td>{formatDate(pr.merged_at)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <p>No PRs found that were merged without approval.</p>
+                )}
+            </div>
+        );
+    }
+
+    // Handle other use case results (arrays with pr_id)
+    if (Array.isArray(evidence) && evidence.length > 0 && evidence[0].pr_id) {
+        return (
+            <div className="github-analysis">
+                <div className="result-header">
+                    <GitPullRequest className="w-6 h-6 text-purple-600" />
+                    <h3>Pull Request Analysis</h3>
+                    <span className="count-badge">{evidence.length} found</span>
+                </div>
+                
+                <div className="prs-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PR ID</th>
+                                <th>Title</th>
+                                {evidence[0].reviewer && <th>Reviewer</th>}
+                                {evidence[0].decision && <th>Decision</th>}
+                                {evidence[0].waiting_time && <th>Waiting Time</th>}
+                                {evidence[0].approvers && <th>Approvers</th>}
+                                {evidence[0].merged_at && <th>Merged At</th>}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {evidence.map((item, i) => (
+                                <tr key={i}>
+                                    <td>#{item.pr_id}</td>
+                                    <td>{item.title}</td>
+                                    {item.reviewer && <td>{item.reviewer}</td>}
+                                    {item.decision && <td><span className={`review-state ${item.decision.toLowerCase()}`}>{item.decision}</span></td>}
+                                    {item.waiting_time && <td>{item.waiting_time}</td>}
+                                    {item.approvers && <td>{Array.isArray(item.approvers) ? item.approvers.join(', ') : item.approvers}</td>}
+                                    {item.merged_at && <td>{formatDate(item.merged_at)}</td>}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    }
+
+    // Single PR (has number property)
     if (evidence.number) {
-      return (
-        <div className="github-pr">
-          <div className="result-header">
-            <GitPullRequest className="w-6 h-6 text-purple-600" />
-            <h3>Pull Request #{evidence.number}</h3>
-            <span className={`status-badge ${evidence.state}`}>
-              {evidence.state}
-            </span>
-          </div>
-
-          <div className="pr-details">
-            <h4>{evidence.title}</h4>
-            <div className="pr-meta">
-              <span><User size={16} /> {evidence.user}</span>
-              <span><Calendar size={16} /> {formatDate(evidence.created_at)}</span>
-              {evidence.merged_at && <span>✅ Merged {formatDate(evidence.merged_at)}</span>}
-            </div>
-
-            <div className="pr-stats">
-              <span className="stat">+{evidence.additions} -{evidence.deletions}</span>
-              <span className="stat">{evidence.changed_files} files</span>
-              <span className="stat">{evidence.approvals} approvals</span>
-            </div>
-
-            {evidence.reviews && evidence.reviews.length > 0 && (
-              <div className="reviews">
-                <h5>Reviews</h5>
-                {evidence.reviews.map((review, i) => (
-                  <div key={i} className={`review ${review.state.toLowerCase()}`}>
-                    <span className="reviewer">{review.user}</span>
-                    <span className={`review-state ${review.state.toLowerCase()}`}>
-                      {review.state === 'APPROVED' && <CheckCircle size={16} />}
-                      {review.state === 'CHANGES_REQUESTED' && <XCircle size={16} />}
-                      {review.state}
+        return (
+            <div className="github-pr">
+                <div className="result-header">
+                    <GitPullRequest className="w-6 h-6 text-purple-600" />
+                    <h3>Pull Request #{evidence.number}</h3>
+                    <span className={`status-badge ${evidence.state}`}>
+                        {evidence.state}
                     </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <a href={evidence.url} target="_blank" rel="noopener noreferrer" className="external-link">
-              <ExternalLink size={16} />
-              View on GitHub
-            </a>
-          </div>
-        </div>
-      );
-    }
-
-    // Multiple PRs or repos
-    if (Array.isArray(evidence)) {
-      return (
-        <div className="github-list">
-          {evidence.map((item, i) => (
-            <div key={i} className="github-item">
-              {item.full_name ? (
-                // Repository
-                <div className="repo-item">
-                  <h4>{item.full_name}</h4>
-                  <p>{item.description}</p>
-                  <div className="repo-meta">
-                    <span>⭐ {item.stars}</span>
-                    <span>🍴 {item.forks}</span>
-                    <span>{item.language}</span>
-                  </div>
                 </div>
-              ) : (
-                // Pull Request
-                <div className="pr-item">
-                  <span className={`status-badge ${item.state}`}>{item.state}</span>
-                  <h4>#{item.number}: {item.title}</h4>
-                  <span>{item.user} • {formatDate(item.created_at)}</span>
+                
+                <div className="pr-details">
+                    <h4>{evidence.title}</h4>
+                    <div className="pr-meta">
+                        <span><User size={16} /> {evidence.user}</span>
+                        <span><Calendar size={16} /> {formatDate(evidence.created_at)}</span>
+                        {evidence.merged_at && <span>✅ Merged {formatDate(evidence.merged_at)}</span>}
+                    </div>
+                    
+                    <div className="pr-stats">
+                        <span className="stat">+{evidence.additions || 0} -{evidence.deletions || 0}</span>
+                        <span className="stat">{evidence.changed_files || 0} files</span>
+                        <span className="stat">{evidence.approvals || 0} approvals</span>
+                    </div>
+                    
+                    {evidence.reviews && evidence.reviews.length > 0 && (
+                        <div className="reviews">
+                            <h5>Reviews</h5>
+                            {evidence.reviews.map((review, i) => (
+                                <div key={i} className={`review ${review.state.toLowerCase()}`}>
+                                    <span className="reviewer">{review.user}</span>
+                                    <span className={`review-state ${review.state.toLowerCase()}`}>
+                                        {review.state === 'APPROVED' && <CheckCircle size={16} />}
+                                        {review.state === 'CHANGES_REQUESTED' && <XCircle size={16} />}
+                                        {review.state}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    <a href={evidence.url} target="_blank" rel="noopener noreferrer" className="external-link">
+                        <ExternalLink size={16} />
+                        View on GitHub
+                    </a>
                 </div>
-              )}
             </div>
-          ))}
-        </div>
-      );
+        );
     }
 
-    return <div>GitHub data received but format not recognized</div>;
-  };
+    // Multiple PRs array (normal PR objects with number property)
+    if (Array.isArray(evidence) && evidence.length > 0 && evidence[0].number) {
+        return (
+            <div className="github-list">
+                <div className="list-header">
+                    <h3>{evidence.length} Pull Requests Found</h3>
+                </div>
+                {evidence.map((pr, i) => (
+                    <div key={i} className="github-item">
+                        <div className="pr-item">
+                            <div className="pr-header">
+                                <span className={`status-badge ${pr.state}`}>{pr.state}</span>
+                                <h4>#{pr.number}: {pr.title}</h4>
+                            </div>
+                            <div className="pr-meta">
+                                <span><User size={16} /> {pr.user}</span>
+                                <span><Calendar size={16} /> {formatDate(pr.created_at)}</span>
+                                {pr.merged && <span>✅ Merged</span>}
+                                <span>{pr.approvals || 0} approvals</span>
+                                {pr.reviews && <span>{pr.reviews.length} reviews</span>}
+                            </div>
+                            
+                            {pr.reviews && pr.reviews.length > 0 && (
+                                <div className="pr-reviews-summary">
+                                    <strong>Reviews:</strong>
+                                    {pr.reviews.slice(0, 3).map((review, j) => (
+                                        <span key={j} className={`review-badge ${review.state.toLowerCase()}`}>
+                                            {review.user}: {review.state}
+                                        </span>
+                                    ))}
+                                    {pr.reviews.length > 3 && <span>+{pr.reviews.length - 3} more</span>}
+                                </div>
+                            )}
+                            
+                            <a href={pr.url} target="_blank" rel="noopener noreferrer" className="external-link">
+                                <ExternalLink size={16} />
+                                View PR
+                            </a>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    // Repository array
+    if (Array.isArray(evidence) && evidence.length > 0 && evidence[0].full_name) {
+        return (
+            <div className="github-list">
+                <div className="list-header">
+                    <h3>{evidence.length} Repositories Found</h3>
+                </div>
+                {evidence.map((repo, i) => (
+                    <div key={i} className="github-item">
+                        <div className="repo-item">
+                            <h4>{repo.full_name}</h4>
+                            <p>{repo.description}</p>
+                            <div className="repo-meta">
+                                <span>⭐ {repo.stars}</span>
+                                <span>🍴 {repo.forks}</span>
+                                <span>{repo.language}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    return <div>GitHub data received but format not recognized. Type: {typeof evidence}, Length: {Array.isArray(evidence) ? evidence.length : 'N/A'}</div>;
+};
 
   
    

@@ -6,7 +6,7 @@ const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const fileInputRef = useRef(null);
-
+ 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (query.trim() && !loading) {
