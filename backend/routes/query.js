@@ -47,6 +47,7 @@ router.post('/', async (req, res) => {
 
         // Generate AI summary
         summary = await aiService.generateSummary(evidence, analysis.intent);
+        console.log('Summary:', summary);
 
         res.json({
             query: query,
@@ -97,18 +98,18 @@ async function handleGitHubQuery(analysis) {
             return await githubService.getPRsMergedLastWeek();
         }
         
-        // Existing cases
         if (params.prNumber && params.repository) {
             const [owner, repo] = params.repository.split('/');
             return await githubService.getPullRequest(owner, repo, params.prNumber);
         } else if (params.prNumber) {
-            return await githubService.getPullRequest("shambhavi-123", "sprinto-bot", params.prNumber);
+            return await githubService.getPullRequest(owner, repo, params.prNumber);
         } else if (query.includes('pull request') || query.includes('last') && query.includes('pull')) {
             // Default: get pull requests
-            return await githubService.getPullRequests();
+            const [owner, repo] = params.repository.split('/');
+            return await githubService.getPullRequests(owner, repo);
         } else {
             // Default: get repositories
-            return await githubService.getRepositories();
+            return await githubService.getRepositories(params.user);
         }
     } catch (error) {
         return { error: error.message, queryType: 'github', parameters: params };

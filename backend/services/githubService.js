@@ -23,15 +23,15 @@ class GitHubService {
     /**
      * Get user's repositories - Fixed to return array format
      */
-    async getRepositories() {
+    async getRepositories(user) {
         try {
             // Get specific repo since you're working with sprinto-bot
-            const response = await axios.get(`${this.baseURL}/repos/shambhavi-123/sprinto-bot`, {
+            const response = await axios.get(`${this.baseURL}/repos/${user}/Hackathon`, {
                 headers: this.headers
             });
             
             const repo = response.data;
-            
+            console.log("Fetched repo:------------", repo);
             // Return as array to match expected format
             return [{
                 id: repo.id,
@@ -133,7 +133,9 @@ class GitHubService {
     /**
  * Get pull requests for a repository - Fixed format with limit support
  */
-async getPullRequests(owner = "shambhavi-123", repo = "sprinto-bot", state = "all", limit = 50) {
+
+async getPullRequests(owner, repo, state = "all", limit = 50) {
+    console.log("getPUllRequests:::::", owner, repo, state, limit)
     try {
         const response = await axios.get(`${this.baseURL}/repos/${owner}/${repo}/pulls`, {
             headers: this.headers,
@@ -141,9 +143,10 @@ async getPullRequests(owner = "shambhavi-123", repo = "sprinto-bot", state = "al
                 state: state,
                 sort: "updated",
                 direction: "desc",
-                per_page: Math.min(limit, 100) // GitHub API max is 100
-            }
+                per_page: limit,
+            },
         });
+        console.log("response.data", response);
 
         const prs = response.data;
         console.log(`Fetched ${prs.length} PRs (requested: ${limit})`);
@@ -214,7 +217,7 @@ async getPullRequests(owner = "shambhavi-123", repo = "sprinto-bot", state = "al
     /**
      * Use Case 1: Get PRs merged without approval
      */
-    async getPRsMergedWithoutApproval(owner = "shambhavi-123", repo = "sprinto-bot") {
+    async getPRsMergedWithoutApproval(owner, repo) {
         try {
             const prs = await this.getPullRequests(owner, repo, "closed");
             const mergedPRsWithoutApproval = prs.filter(pr => 
@@ -240,7 +243,7 @@ async getPullRequests(owner = "shambhavi-123", repo = "sprinto-bot", state = "al
     /**
      * Use Case 2: Get PRs reviewed by specific user
      */
-    async getPRsReviewedByUser(reviewer, owner = "shambhavi-123", repo = "sprinto-bot") {
+    async getPRsReviewedByUser(reviewer, owner, repo) {
         try {
             const prs = await this.getPullRequests(owner, repo, "all");
             const reviewedPRs = prs.filter(pr => 
@@ -270,7 +273,7 @@ async getPullRequests(owner = "shambhavi-123", repo = "sprinto-bot", state = "al
     /**
      * Use Case 3: Get PRs waiting for review > 24 hours
      */
-    async getPRsWaitingForReview(owner = "shambhavi-123", repo = "sprinto-bot") {
+    async getPRsWaitingForReview(owner, repo) {
         try {
             const prs = await this.getPullRequests(owner, repo, "open");
             const now = new Date();
@@ -302,7 +305,7 @@ async getPullRequests(owner = "shambhavi-123", repo = "sprinto-bot", state = "al
     /**
      * Use Case 4: Get PRs merged in last 7 days with approvers
      */
-    async getPRsMergedLastWeek(owner = "shambhavi-123", repo = "sprinto-bot") {
+    async getPRsMergedLastWeek(owner , repo) {
         try {
             const prs = await this.getPullRequests(owner, repo, "closed");
             const now = new Date();
@@ -333,7 +336,7 @@ async getPullRequests(owner = "shambhavi-123", repo = "sprinto-bot", state = "al
     }
 
     // Keep your existing getPullRequest method but ensure it returns proper format
-    async getPullRequest(owner = "shambhavi-123", repo = "sprinto-bot", prNumber) {
+    async getPullRequest(owner, repo, prNumber) {
         try {
             const [prResponse, reviewsResponse] = await Promise.all([
                 axios.get(`${this.baseURL}/repos/${owner}/${repo}/pulls/${prNumber}`, {

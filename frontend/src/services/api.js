@@ -9,6 +9,8 @@ const api = axios.create({
   },
 });
 
+let baseURL = 'https://api.github.com';
+
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
@@ -60,12 +62,13 @@ export const getQuerySuggestions = async () => {
 // GitHub API functions
 export const githubAPI = {
   getRepositories: async () => {
-    const response = await api.get('https://api.github.com/repos/shambhavi-123/sprinto-bot');
+    const response = await api.get(`${baseURL}/repos/${owner}`);
+    console.log('')
     return response.data;
   },
 
   getPullRequests: async (owner, repo, state = 'all') => {
-    const response = await api.get(`https://api.github.com/repos/shambhavi-123/sprinto-bot/pulls`, {
+    const response = await api.get(`${baseURL}/repos/${owner}/${repo}/pulls`, {
       params: { state }
     });
     console.log("------",response);
@@ -73,7 +76,7 @@ export const githubAPI = {
   },
 
   getPullRequest: async (owner, repo, prNumber) => {
-    const response = await api.get(`https://api.github.com/repos/shambhavi-123/sprinto-bot/pulls`);
+    const response = await api.get(`${baseURL}/repos/${owner}/${repo}/pulls/${prNumber}`);
     return response.data;
   },
 

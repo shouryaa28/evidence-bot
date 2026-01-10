@@ -11,7 +11,7 @@ class AIService {
     }
 
     this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+    this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   }
 
   async analyzeQuery(userQuery) {
@@ -28,7 +28,7 @@ User Query: "${userQuery}"
 Please determine:
 1. Query Type: github, jira, document, or general
 2. Intent: What is the user trying to find?
-3. Parameters: Extract relevant identifiers (PR numbers, issue keys, file names, etc.)
+3. Parameters: Extract relevant identifiers (repository mentioned, PR numbers, issue keys, file names,  etc.)
 4. Source: Which system should be queried?
 5. Action: What specific action should be taken?
 
@@ -131,44 +131,50 @@ Respond in JSON format:
   /**
    * Extract GitHub-specific parameters
    */
-extractGitHubParams(query) {
-  const params = {};
-  
-  // Extract PR number (for single PR queries like "PR #456")
-  const prMatch = query.match(/pr[\s#]*([0-9]+)|pull request[\s#]*([0-9]+)/i);
-  if (prMatch) {
+  extractGitHubParams(query) {
+    const params = {};
+
+    // Extract PR number (for single PR queries like "PR #456")
+    const prMatch = query.match(/pr[\s#]*([0-9]+)|pull request[\s#]*([0-9]+)/i);
+    if (prMatch) {
       params.prNumber = prMatch[1] || prMatch[2];
-  }
-  
-  // Extract count/limit (for queries like "last 5 PRs", "show me 10 pull requests")
-  const countMatch = query.match(/(?:last|show|get|fetch)[\s\w]*([0-9]+)[\s]*(?:prs?|pull requests?)/i) || 
-                    query.match(/([0-9]+)[\s]*(?:prs?|pull requests?)/i);
-  if (countMatch) {
+    }
+
+    // Extract count/limit (for queries like "last 5 PRs", "show me 10 pull requests")
+    const countMatch =
+      query.match(
+        /(?:last|show|get|fetch)[\s\w]*([0-9]+)[\s]*(?:prs?|pull requests?)/i
+      ) || query.match(/([0-9]+)[\s]*(?:prs?|pull requests?)/i);
+    if (countMatch) {
       params.count = parseInt(countMatch[1]);
       // If we found a count, this is NOT a single PR query
       delete params.prNumber;
-  }
-  
-  // Extract repository name - FIXED REGEX
-  const repoMatch = query.match(/repo[\s:]*([a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)|repository[\s:]*([a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)/i);
-  if (repoMatch) {
+    }
+
+    // Extract repository name - FIXED REGEX
+    const repoMatch = query.match(
+      /repo[\s:]*([a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)|repository[\s:]*([a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)/i
+    );
+    if (repoMatch) {
       params.repository = repoMatch[1] || repoMatch[2];
-  }
-  
-  // Extract user name for reviewer queries
-  const reviewerMatch = query.match(/reviewed by[\s]+([a-zA-Z0-9_-]+)|reviewer[\s:]*([a-zA-Z0-9_-]+)/i);
-  if (reviewerMatch) {
+    }
+
+    // Extract user name for reviewer queries
+    const reviewerMatch = query.match(
+      /reviewed by[\s]+([a-zA-Z0-9_-]+)|reviewer[\s:]*([a-zA-Z0-9_-]+)/i
+    );
+    if (reviewerMatch) {
       params.user = reviewerMatch[1] || reviewerMatch[2];
-  }
-  
-  // Extract user name from "show me PRs by Alice" type queries
-  const userMatch = query.match(/by[\s]+([a-zA-Z0-9_-]+)/i);
-  if (userMatch && !params.user) {
+    }
+
+    // Extract user name from "show me PRs by Alice" type queries
+    const userMatch = query.match(/by[\s]+([a-zA-Z0-9_-]+)/i);
+    if (userMatch && !params.user) {
       params.user = userMatch[1];
+    }
+
+    return params;
   }
-  
-  return params;
-}
 
   /**
    * Extract JIRA-specific parameters
