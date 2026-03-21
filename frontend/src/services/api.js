@@ -3,22 +3,18 @@ import axios from 'axios';
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: '/api',
-  timeout: 30000, // 30 seconds
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-let baseURL = 'https://api.github.com';
-
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
-    console.error('API Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -26,7 +22,6 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log(`API Response: ${response.status} ${response.config.url}`);
     return response;
   },
   (error) => {
@@ -59,24 +54,22 @@ export const getQuerySuggestions = async () => {
   }
 };
 
-// GitHub API functions
+// GitHub API functions (all proxied through the backend)
 export const githubAPI = {
   getRepositories: async () => {
-    const response = await api.get(`${baseURL}/repos/${owner}`);
-    console.log('')
+    const response = await api.get('/github/repos');
     return response.data;
   },
 
   getPullRequests: async (owner, repo, state = 'all') => {
-    const response = await api.get(`${baseURL}/repos/${owner}/${repo}/pulls`, {
+    const response = await api.get(`/github/repos/${owner}/${repo}/pulls`, {
       params: { state }
     });
-    console.log("------",response);
     return response.data;
   },
 
   getPullRequest: async (owner, repo, prNumber) => {
-    const response = await api.get(`${baseURL}/repos/${owner}/${repo}/pulls/${prNumber}`);
+    const response = await api.get(`/github/repos/${owner}/${repo}/pulls/${prNumber}`);
     return response.data;
   },
 
@@ -99,8 +92,6 @@ export const githubAPI = {
     return response.data;
   }
 };
-
-
 
 // Document API functions
 export const documentAPI = {
@@ -153,14 +144,12 @@ export const getSystemHealth = async () => {
     const [backend, github, documents] = await Promise.allSettled([
       api.get('/health'),
       githubAPI.getHealth(),
-      
       documentAPI.getHealth()
     ]);
 
     return {
       backend: backend.status === 'fulfilled' ? backend.value.data : { status: 'error', error: backend.reason?.message },
       github: github.status === 'fulfilled' ? github.value : { status: 'error', error: github.reason?.message },
-    
       documents: documents.status === 'fulfilled' ? documents.value : { status: 'error', error: documents.reason?.message }
     };
   } catch (error) {

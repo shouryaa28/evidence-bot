@@ -98,14 +98,18 @@ async function handleGitHubQuery(analysis) {
             return await githubService.getPRsMergedLastWeek();
         }
         
+        // const defaultOwner = process.env.GITHUB_OWNER || '';
+        const defaultRepo = process.env.GITHUB_REPO || '';
+        const defaultOwner = "ed-roh";
+
         if (params.prNumber && params.repository) {
             const [owner, repo] = params.repository.split('/');
             return await githubService.getPullRequest(owner, repo, params.prNumber);
         } else if (params.prNumber) {
-            return await githubService.getPullRequest(owner, repo, params.prNumber);
-        } else if (query.includes('pull request') || query.includes('last') && query.includes('pull')) {
+            return await githubService.getPullRequest(defaultOwner, defaultRepo, params.prNumber);
+        } else if (query.includes('pull request') || (query.includes('last') && query.includes('pull'))) {
             // Default: get pull requests
-            const [owner, repo] = params.repository.split('/');
+            const [owner, repo] = params.repository ? params.repository.split('/') : [defaultOwner, defaultRepo];
             return await githubService.getPullRequests(owner, repo);
         } else {
             // Default: get repositories

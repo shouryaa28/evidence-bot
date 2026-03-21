@@ -62,7 +62,7 @@ const QueryInput = ({ onSubmit, loading, onFileUpload }) => {
             </button>
 
             
-            < button
+            <button
               type="button"
               onClick={() => setShowSuggestions(!showSuggestions)}
               className="action-button suggestions-button"
